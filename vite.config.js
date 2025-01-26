@@ -6,23 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/Remixer/',
   build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    minify: 'terser',
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-        assetFileNames: `assets/[name].[ext]`,
-        chunkFileNames: `assets/[name].[hash].js`,
-        entryFileNames: `assets/[name].[hash].js`,
-      }
-    },
-    terserOptions: {
-      format: {
-        comments: false
-      }
-    }
+    outDir: 'dist'
   },
   server: {
     headers: {
