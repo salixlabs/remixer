@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './index.css'
 
 function App() {
   const [inputText, setInputText] = useState('')
