@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import Anthropic from '@anthropic-ai/sdk'
-import './App.css'
 
 function App() {
   const [inputText, setInputText] = useState('')
@@ -16,30 +14,37 @@ function App() {
     setOutputText('')
 
     try {
-      console.log('API Key:', import.meta.env.VITE_ANTHROPIC_API_KEY?.slice(0, 10) + '...')
-      
-      const anthropic = new Anthropic({
-        apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
-      })
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: "claude-3-haiku-20240307",
+          max_tokens: 1024,
+          temperature: 1,
+          messages: [{
+            role: "user",
+            content: `Please remix the following content to make it more engaging and creative, while maintaining its core message. Make it more lively and interesting, but keep the key information intact: "${inputText}"`
+          }]
+        })
+      });
 
-      const response = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
-        max_tokens: 1024,
-        temperature: 1,
-        messages: [{
-          role: "user",
-          content: `Please remix the following content to make it more engaging and creative, while maintaining its core message. Make it more lively and interesting, but keep the key information intact: "${inputText}"`
-        }]
-      })
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
 
-      if (response.content && response.content[0] && response.content[0].text) {
-        setOutputText(response.content[0].text)
+      const data = await response.json();
+      if (data.content && data.content[0] && data.content[0].text) {
+        setOutputText(data.content[0].text);
       } else {
-        throw new Error('Unexpected API response format')
+        throw new Error('Unexpected API response format');
       }
     } catch (err) {
-      console.error('Detailed error:', err)
-      setError(err.message || 'Failed to remix content. Please try again.')
+      console.error('Error details:', err);
+      setError('Failed to remix content. Please check your API key and try again.');
     } finally {
       setIsLoading(false)
     }
@@ -51,6 +56,12 @@ function App() {
         <h1 className="text-3xl font-bold text-gray-800 mb-8">
           Content Remixer
         </h1>
+        {!import.meta.env.VITE_ANTHROPIC_API_KEY && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+            <p className="font-bold">API Key Missing</p>
+            <p>Please add your Claude API key to the repository secrets as VITE_ANTHROPIC_API_KEY.</p>
+          </div>
+        )}
         <div className="space-y-6">
           {/* Input Section */}
           <div className="bg-white rounded-lg shadow p-6">
