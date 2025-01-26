@@ -8,13 +8,25 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    assetsDir: 'assets',
+    minify: 'terser',
+    sourcemap: false,
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name].[ext]'
+        manualChunks: undefined,
+        assetFileNames: `assets/[name].[ext]`,
+        chunkFileNames: `assets/[name].[hash].js`,
+        entryFileNames: `assets/[name].[hash].js`,
       }
+    },
+    terserOptions: {
+      format: {
+        comments: false
+      }
+    }
+  },
+  server: {
+    headers: {
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline';"
     }
   }
 })

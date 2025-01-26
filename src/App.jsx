@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import viteLogo from './assets/vite.svg'
 
 function App() {
   const [inputText, setInputText] = useState('')
